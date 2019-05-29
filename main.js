@@ -2,11 +2,23 @@ function rand255() {
     return Math.floor(Math.random() * 256);
 }
 
+let $console;
+
+function addConsoleLine(txt) {
+    const line = document.createElement("div");
+    line.textContent = txt;
+    $console.prepend(line);
+    return line;
+}
+
 async function main() {
     // const mediaStream = await navigator.mediaDevices.getDisplayMedia({video: true, audio: true});
-    const $console = document.getElementById("console");
+    $console = document.getElementById("console");
+
     const canvas = /** @type {HTMLCanvasElement} */(document.getElementById("c"));
+    addConsoleLine("canvas = " + canvas);
     const ctx = canvas.getContext("2d");
+    addConsoleLine("ctx = " + ctx);
     setInterval(() => {
         ctx.strokeStyle = `rgb(${rand255()},${rand255()},${rand255()})`;
         ctx.beginPath();
@@ -17,17 +29,21 @@ async function main() {
     }, 16);
     /** @type {MediaStream} */
     const mediaStream = canvas.captureStream(30);
+    addConsoleLine("mediaStream = " + mediaStream);
     console.log(mediaStream);
+
     
     const rec = new MediaRecorder(mediaStream);
-    const line = document.createElement("div");
-    $console.prepend(line);
+    addConsoleLine("MediaRecorder = " + rec);
+    
+    const dataLine = addConsoleLine();
+
     rec.ondataavailable = ({data}) => {
         console.log(data);
 
         const reader = new FileReader();
         reader.onload = () => {
-            line.textContent = Array.from(new Uint8Array(reader.result));
+            dataLine.textContent = Array.from(new Uint8Array(reader.result));
         }
         reader.readAsArrayBuffer(data);
     }
